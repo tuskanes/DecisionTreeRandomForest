@@ -15,9 +15,8 @@ print_data(df)
 df = preprocessing(df)
 
 #print correlation
-#correlation_data(df)
+correlation_data(df)
 
-df['Accident'] = df['Accident'].astype(int)
 print(type_of_target(df['Accident']))
 #Random Forest algorithm
 rfrTree = RandomForestTree(df)

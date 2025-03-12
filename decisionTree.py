@@ -3,10 +3,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from matplotlib import pyplot as plt
 from sklearn.tree import plot_tree, DecisionTreeClassifier
-from sklearn import metrics
+from sklearn import metrics, tree
 from sklearn.metrics import classification_report, confusion_matrix
-import seaborn as sns
 from printData import *
+from imblearn.over_sampling import SMOTE
+
+
 class RandomForestTree:
     def __init__(self, df):
         self.df = df
@@ -21,12 +23,26 @@ class RandomForestTree:
     def training_data(self):
         X = self.df.drop(['Accident'], axis=1)
         Y = self.df['Accident']
-        self.train_X, self.test_X, self.train_Y, self.test_Y = train_test_split(X, Y, test_size= 0.22, random_state =48)
+        self.train_X, self.test_X, self.train_Y, self.test_Y = train_test_split(X, Y, test_size=0.2, random_state=48)
         self.post_pruning()
-        self.model = RandomForestClassifier(max_depth=8,  n_estimators=160 ,
-                                            max_leaf_nodes=62 ,random_state=42, ccp_alpha= self.alpha)
-        self.model.fit(self.train_X, self.train_Y)
 
+        smote = SMOTE(random_state=3)
+        self.train_X, self.train_Y = smote.fit_resample(self.train_X, self.train_Y)
+
+
+        self.model = RandomForestClassifier(
+            random_state=3,
+            class_weight='balanced',
+            ccp_alpha=self.alpha,
+            max_depth=8,
+            max_leaf_nodes= 30,
+            min_samples_leaf=5,
+            min_samples_split=4,
+            n_estimators=250,
+            criterion='entropy',
+        )
+
+        self.model.fit(self.train_X, self.train_Y)
 
     def predict(self):
         if self.model is None:
@@ -64,7 +80,7 @@ class RandomForestTree:
                 clfs[-1].tree_.node_count, ccp_alphas[-1]
             )
         )
-        self.alpha = round(ccp_alphas[-1] / 2.5, 4)
+        self.alpha = round(ccp_alphas[-1] / 1.5, 5)
         clfs = clfs[:-1]
         ccp_alphas = ccp_alphas[:-1]
 
