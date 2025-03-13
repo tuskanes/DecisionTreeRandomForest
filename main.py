@@ -1,8 +1,8 @@
 from sklearn.utils.multiclass import type_of_target
-
 from preprocessingData import *
 from correlationData import *
 from decisionTree import *
+
 file_path = "dataset_traffic_accident_prediction1.csv"
 
 # Load the latest version
@@ -17,7 +17,6 @@ df = preprocessing(df)
 #print correlation
 correlation_data(df)
 
-print(type_of_target(df['Accident']))
 #Random Forest algorithm
 rfrTree = RandomForestTree(df)
 rfrTree.training_data()

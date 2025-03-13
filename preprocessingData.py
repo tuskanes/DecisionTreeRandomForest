@@ -21,4 +21,5 @@ def preprocessing(df):
     df = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
     print(df.describe())
     df['Accident'] = df['Accident'].astype(int)
+
     return df

@@ -1,7 +1,6 @@
-from pandas.core.common import random_state
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from matplotlib import pyplot as plt
 from sklearn.tree import plot_tree, DecisionTreeClassifier
 from sklearn import metrics, tree
 from sklearn.metrics import classification_report, confusion_matrix
@@ -23,22 +22,23 @@ class RandomForestTree:
     def training_data(self):
         X = self.df.drop(['Accident'], axis=1)
         Y = self.df['Accident']
-        self.train_X, self.test_X, self.train_Y, self.test_Y = train_test_split(X, Y, test_size=0.2, random_state=48)
+        self.train_X, self.test_X, self.train_Y, self.test_Y = train_test_split(X, Y, test_size=0.3, random_state=1)
         self.post_pruning()
 
         smote = SMOTE(random_state=3)
         self.train_X, self.train_Y = smote.fit_resample(self.train_X, self.train_Y)
 
-
+        rus = RandomUnderSampler(random_state=42)
+        self.train_X, self.train_Y = rus.fit_resample(self.train_X, self.train_Y)
         self.model = RandomForestClassifier(
             random_state=3,
             class_weight='balanced',
             ccp_alpha=self.alpha,
-            max_depth=8,
-            max_leaf_nodes= 30,
-            min_samples_leaf=5,
+            max_depth=6,
+            max_leaf_nodes= 25,
+            min_samples_leaf=6,
             min_samples_split=4,
-            n_estimators=250,
+            n_estimators=120,
             criterion='entropy',
         )
 
@@ -49,7 +49,7 @@ class RandomForestTree:
             raise Exception('model not trained')
 
         else:
-           self.pred_Y = self.model.predict(self.test_X)
+            self.pred_Y = self.model.predict(self.test_X)
 
     def print_tree(self):
         tree_to_plot = self.model.estimators_[0]
